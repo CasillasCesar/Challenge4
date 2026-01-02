@@ -14,6 +14,13 @@ public class PlayerControllerX : MonoBehaviour
 
     private float normalStrength = 10; // how hard to hit enemy without powerup
     private float powerupStrength = 25; // how hard to hit enemy with powerup
+
+    // Variables para el turbo
+    private float turboBoost = 15;
+    public float turboCooldown = 2f;
+    private float nextTurbo = 0f;
+    public ParticleSystem smokeParticle;
+    // endregion
     
     void Start()
     {
@@ -25,7 +32,21 @@ public class PlayerControllerX : MonoBehaviour
     {
         // Add force to player in direction of the focal point (and camera)
         float verticalInput = Input.GetAxis("Vertical");
-        playerRb.AddForce(focalPoint.transform.forward * verticalInput * speed * Time.deltaTime); 
+        playerRb.AddForce(focalPoint.transform.forward * verticalInput * speed * Time.deltaTime);
+
+        // Lógica de Turbo con Cooldown
+        // Verificamos si se presiona Espacio Y si el tiempo actual superó el tiempo de espera
+        if (Input.GetKeyDown(KeyCode.Space) && Time.time > nextTurbo)
+        {
+            // Actualizamos cuándo podrá volver a usarse
+            nextTurbo = Time.time + turboCooldown;
+
+            // Aplicamos el impulso (Impulse ignora la masa para una respuesta inmediata)
+            playerRb.AddForce(focalPoint.transform.forward * turboBoost, ForceMode.Impulse);
+
+            // Efecto visual
+            smokeParticle.Play();
+        }
 
         // Set powerup indicator position to beneath player
         powerupIndicator.transform.position = transform.position + new Vector3(0, -0.6f, 0);
